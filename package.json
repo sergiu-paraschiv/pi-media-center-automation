@@ -1,0 +1,25 @@
+{
+  "name": "pi-media-center-automation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Main.js",
+  "author": "Sergiu Paraschiv",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/sergiu-paraschiv/pi-media-center-automation.git"
+  },
+  "scripts": {
+    "build": "./node_modules/.bin/babel.cmd App --watch --out-dir build",
+    "run": "node ./build/Main.js"
+  },
+  "dependencies": {
+    "node-schedule": "^0.6.0",
+    "node-tvdb": "^1.6.1",
+    "promise": "^7.0.4",
+    "transmission": "^0.4.3"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.3.17",
+    "babel-preset-es2015": "^6.3.13"
+  }
+}

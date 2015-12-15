@@ -1,0 +1,9 @@
+export default {
+    Transmission: {
+        username: 'USER_NAME',
+        password: 'PASSWORD'
+    },
+    TVDB: {
+        apiKey: 'YOUR_API_KEY'
+    }
+};
