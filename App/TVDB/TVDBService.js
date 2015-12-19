@@ -16,7 +16,7 @@ class TVDBService {
                 else {
                     resolve(res);
                 }
-            })
+            });
         });
     }
 }
