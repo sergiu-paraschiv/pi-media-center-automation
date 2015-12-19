@@ -1,5 +1,6 @@
 node_modules
 build
+!gulp/build
 App/Config.js
 npm-debug.log
 public_dev
