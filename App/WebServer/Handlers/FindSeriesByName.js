@@ -1,8 +1,8 @@
-import TVDBService from '../../../TVDB/TVDBService';
+import TVDBService from '../../TVDB/TVDBService';
 
 class FindSeriesByName {
     handle(req, res) {
-        if(req.query.name && req.query.name.length > 2) {
+        if(req.query.name && req.query.name.length > 0) {
             TVDBService.findSeriesByName(req.query.name)
                 .then((data) => {
                     res.json(data);

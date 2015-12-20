@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import InjectTapEventPlugin from 'react-tap-event-plugin';
-import Router from './Router/containers/Router';
+import PageComponent from './Page/components/PageComponent';
 
 
 InjectTapEventPlugin();
 
 ReactDOM.render(
-    <Router />,
+    <PageComponent />,
     document.getElementById('content')
 );

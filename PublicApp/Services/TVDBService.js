@@ -12,15 +12,15 @@ class TVDBService {
                         reject();
                     }
                     else {
-                        let series = res.body;
+                        let seriesList = res.body;
                         let data = {
                             series: [],
                             serieNames: []
                         };
 
-                        _.each(series, (s) => {
-                            data.series.push(s);
-                            data.serieNames.push(s.SeriesName);
+                        _.each(seriesList, (series) => {
+                            data.series.push(series);
+                            data.serieNames.push(series.name);
                         });
 
                         resolve(data);

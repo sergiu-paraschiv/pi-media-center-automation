@@ -1,6 +1,6 @@
 import TVDBService from '../TVDB/TVDBService';
 
-TVDBService.findSeriesByName('South Park')
+TVDBService.findSeriesByName('S')
     .then((data) => {
-        console.log(data);
+        //console.log(data);
     });

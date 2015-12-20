@@ -1,6 +1,8 @@
+import _ from 'lodash';
 import Promise from 'promise';
 import TVDB from 'node-tvdb';
 import Config from '../Config';
+import TVDBSeries from '../Models/TVDBSeries';
 
 class TVDBService {
     constructor() {
@@ -14,7 +16,7 @@ class TVDBService {
                     reject(error);
                 }
                 else {
-                    resolve(res);
+                    resolve(_.map(res, (seriesData) => new TVDBSeries(seriesData)));
                 }
             });
         });
