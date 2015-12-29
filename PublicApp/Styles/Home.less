@@ -1,4 +1,6 @@
 .page .home {
+    font-family: 'Roboto', sans-serif;
+
     .seriesList,
     .addSeries,
     .expandedSeries {
@@ -13,6 +15,20 @@
             margin-bottom: 24px;
             width: 210px;
             text-decoration: none;
+        }
+    }
+
+    .seasonHeader {
+        > * {
+            position: relative;
+            z-index: 200;
+        }
+
+        .seasonHeaderImage {
+            position: absolute;
+            z-index: 0;
+            top: 0;
+            left: 0;
         }
     }
 }

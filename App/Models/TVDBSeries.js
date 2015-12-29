@@ -11,6 +11,7 @@ class TVDBSeries {
         this.fistAired = data.FirstAired;
         this.network = data.Network;
         this.imdbId = data.IMDB_ID;
+        this.episodes = data.episodes;
     }
 }
 

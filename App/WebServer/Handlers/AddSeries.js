@@ -1,4 +1,5 @@
 import DB from '../../Database/DB';
+import IPCService from '../../IPC/IPCService';
 
 class AddSeries {
     handle(req, res) {
@@ -8,6 +9,10 @@ class AddSeries {
                 res.json({ status: false });
             }
             else {
+                IPCService.message({
+                    action: 'loadEpisodesForSeries',
+                    params: [series.id]
+                });
                 res.json({ status: true, data: series });
             }
         });

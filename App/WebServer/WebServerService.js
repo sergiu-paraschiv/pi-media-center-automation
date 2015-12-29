@@ -1,6 +1,7 @@
 import Express from 'express';
 import BodyParser from 'body-parser';
 import Config from '../Config';
+import IPCService from '../IPC/IPCService';
 
 class WebServerService {
     constructor() {
@@ -18,6 +19,7 @@ class WebServerService {
     }
 
     start() {
+        IPCService.client();
         this.server.listen(Config.WebServer.port, Config.WebServer.host);
     }
 }

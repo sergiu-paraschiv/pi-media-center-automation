@@ -1,6 +1,12 @@
-import {Schema} from 'mongoose';
+'use strict';
 
-const SeriesSchema = new Schema({
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _mongoose = require('mongoose');
+
+var SeriesSchema = new _mongoose.Schema({
     id: String,
     name: String,
     banner: String,
@@ -11,7 +17,7 @@ const SeriesSchema = new Schema({
     episodes: Array
 });
 
-export default {
+exports.default = {
     name: 'Series',
     schema: SeriesSchema
 };

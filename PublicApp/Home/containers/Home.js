@@ -23,7 +23,7 @@ class Home extends Component {
             activeTab: 'addSeries',
             series: [],
             serieNames: [],
-            serieName: '',
+            seriesName: '',
             selectedSeries: null,
             mySeries: [],
             expandedSeries: null,
@@ -48,13 +48,14 @@ class Home extends Component {
                     <Tab label="Add new show" value="addSeries">
                         <div className="addSeries">
                             <AutoComplete
-                                value={this.state.serieName}
+                                searchText={this.state.seriesName}
                                 fullWidth={true}
                                 animated={false}
                                 hintText="Search TVDB by Show Name"
                                 dataSource={this.state.serieNames}
                                 onUpdateInput={this.handleSeriesNameSearchChange.bind(this)}
                                 onNewRequest={this.handleSeriesSelect.bind(this)}
+                                filter={this.handleSeriesNameFilter.bind(this)}
                                 />
                             {this.renderSeriesDetails()}
                         </div>
@@ -71,8 +72,8 @@ class Home extends Component {
                     message={this.state.snackbarMessage}
                     action={this.state.snackbarActionLabel}
                     autoHideDuration={SNACKBAR_AUTOHIDE_DURATION}
-                    onActionTouchTap={this.snackbarAction}
-                    onRequestClose={this.handleSnackbarRequestClose.bind(this)}
+                    onActionTouchTap={this.state.snackbarAction}
+                    onDismiss={this.handleSnackbarDismiss.bind(this)}
                     />
             </div>
         );
@@ -84,6 +85,7 @@ class Home extends Component {
                 <ExpandedSeries
                     series={this.state.expandedSeries}
                     goBack={this.handleGoBackToSeriesList.bind(this)}
+                    onRemove={this.handleRemoveSeries.bind(this)}
                     />
             );
         }
@@ -134,7 +136,7 @@ class Home extends Component {
 
     handleSeriesNameSearchChange(name) {
         this.setState({
-            serieName: name
+            seriesName: name
         });
 
         TVDBService.findSeriesByName(name)
@@ -148,14 +150,14 @@ class Home extends Component {
             });
     }
 
+    handleSeriesNameFilter(searchText, key) {
+        return key.toLowerCase().includes(searchText.toLowerCase());
+    }
+
     handleSeriesSelect(name, index) {
         const selectedSeries = this.state.series[index];
         this.setState({
-            selectedSeries: selectedSeries,
-            snackbarOpen: true,
-            snackbarMessage: '"' + selectedSeries.name + '" was added.',
-            snackbarAction: this.handleUndoAddSeries(selectedSeries.id),
-            snackbarActionLabel: 'Undo'
+            selectedSeries
         });
     }
 
@@ -165,7 +167,7 @@ class Home extends Component {
                 this.reloadMySeries();
                 this.setState({
                     activeTab: 'series',
-                    serieName: '',
+                    seriesName: '',
                     selectedSeries: null,
                     snackbarOpen: true,
                     snackbarMessage: '"' + this.state.selectedSeries.name + '" was added.',
@@ -175,7 +177,7 @@ class Home extends Component {
             });
     }
 
-    handleSnackbarRequestClose() {
+    handleSnackbarDismiss() {
         this.setState({
             snackbarOpen: false,
             snackbarMessage: null,
@@ -198,20 +200,28 @@ class Home extends Component {
         return (e) => {
             e.preventDefault();
 
-            SeriesService.remove(id)
-                .then(() => {
-                    this.reloadMySeries();
-                    this.setState({
-                        activeTab: 'series',
-                        serieName: '',
-                        selectedSeries: null,
-                        snackbarOpen: true,
-                        snackbarMessage: 'Show successfully removed.',
-                        snackbarAction: null,
-                        snackbarActionLabel: null
-                    });
-                });
+            this.handleRemoveSeries(id);
         };
+    }
+
+    // TODO: add UNDO snackbar action
+    handleRemoveSeries(id) {
+        SeriesService.remove(id)
+            .then(() => {
+                this.reloadMySeries();
+                this.setState({
+                    snackbarOpen: true,
+                    snackbarMessage: 'Show successfully removed.',
+                    snackbarAction: null,
+                    snackbarActionLabel: null
+                });
+
+                if(this.state.expandedSeries.id === id) {
+                    this.setState({
+                        expandedSeries: null
+                    });
+                }
+            });
     }
 
     reloadMySeries() {
