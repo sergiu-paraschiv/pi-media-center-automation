@@ -1,4 +1,4 @@
-import TVDBService from '../../TVDB/TVDBService';
+import TVDBService from '../../Services/TVDBService';
 
 class FindSeriesByName {
     handle(req, res) {

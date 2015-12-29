@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _TVDBService = require('../../TVDB/TVDBService');
+var _TVDBService = require('../../Services/TVDBService');
 
 var _TVDBService2 = _interopRequireDefault(_TVDBService);
 

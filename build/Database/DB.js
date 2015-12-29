@@ -26,6 +26,10 @@ var _Series = require('./Schemas/Series');
 
 var _Series2 = _interopRequireDefault(_Series);
 
+var _Torrent = require('./Schemas/Torrent');
+
+var _Torrent2 = _interopRequireDefault(_Torrent);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -47,7 +51,7 @@ var DB = (function () {
                     reject(error);
                 });
                 _this.connection.once('open', function () {
-                    var schemas = [_Series2.default];
+                    var schemas = [_Series2.default, _Torrent2.default];
 
                     schemas.forEach(function (schema) {
                         _this[schema.name] = _this.connection.model(schema.name, schema.schema);

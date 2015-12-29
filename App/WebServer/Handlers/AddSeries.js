@@ -1,5 +1,5 @@
 import DB from '../../Database/DB';
-import IPCService from '../../IPC/IPCService';
+import IPCService from '../../Services/IPCService';
 
 class AddSeries {
     handle(req, res) {

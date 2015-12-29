@@ -6,42 +6,33 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _DB = require('../../Database/DB');
+var _TorrentService = require('../../Services/TorrentService');
 
-var _DB2 = _interopRequireDefault(_DB);
-
-var _IPCService = require('../../Services/IPCService');
-
-var _IPCService2 = _interopRequireDefault(_IPCService);
+var _TorrentService2 = _interopRequireDefault(_TorrentService);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var AddSeries = (function () {
-    function AddSeries() {
-        _classCallCheck(this, AddSeries);
+var FindTorrent = (function () {
+    function FindTorrent() {
+        _classCallCheck(this, FindTorrent);
     }
 
-    _createClass(AddSeries, [{
+    _createClass(FindTorrent, [{
         key: 'handle',
         value: function handle(req, res) {
-            var series = new _DB2.default.Series(req.body.series);
-            series.save(function (err, series) {
-                if (err) {
-                    res.json({ status: false });
-                } else {
-                    _IPCService2.default.message({
-                        action: 'loadEpisodesForSeries',
-                        params: [series.id]
-                    });
-                    res.json({ status: true, data: series });
-                }
-            });
+            if (req.query.query && req.query.query.length > 0) {
+                _TorrentService2.default.find(req.query.query).then(function (data) {
+                    res.json(data);
+                });
+            } else {
+                res.json(null);
+            }
         }
     }]);
 
-    return AddSeries;
+    return FindTorrent;
 })();
 
-exports.default = new AddSeries();
+exports.default = new FindTorrent();

@@ -1,24 +1,34 @@
 import _ from 'lodash';
 import moment from 'moment';
 import React, {PropTypes, Component} from 'react';
-import Card from 'material-ui/lib/card/card';
-import CardMedia from 'material-ui/lib/card/card-media';
-import CardTitle from 'material-ui/lib/card/card-title';
-import CardText from 'material-ui/lib/card/card-text';
-import CardActions from 'material-ui/lib/card/card-actions';
-import Toolbar from 'material-ui/lib/toolbar/toolbar';
-import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
-import ToolbarSeparator from 'material-ui/lib/toolbar/toolbar-separator';
-import FlatButton from 'material-ui/lib/flat-button';
-import RaisedButton from 'material-ui/lib/raised-button';
-import List from 'material-ui/lib/lists/list';
-import ListItem from 'material-ui/lib/lists/list-item';
-import Avatar from 'material-ui/lib/avatar';
+import {
+    Card,
+    CardMedia,
+    CardTitle,
+    CardText,
+    CardActions,
+    Toolbar,
+    ToolbarGroup,
+    ToolbarSeparator,
+    FlatButton,
+    RaisedButton,
+    IconButton,
+    IconMenu,
+    MenuItem,
+    List,
+    ListItem,
+    Avatar,
+    LinearProgress
+} from 'material-ui';
 
 class ExpandedSeries extends Component {
     static propTypes = {
         series: PropTypes.object,
-        goBack: PropTypes.func
+        torrents: PropTypes.arrayOf(PropTypes.object),
+        goBack: PropTypes.func,
+        onRemove: PropTypes.func,
+        findTorrent: PropTypes.func,
+        onRemoveDownload: PropTypes.func
     }
 
     render() {
@@ -72,7 +82,7 @@ class ExpandedSeries extends Component {
 
         return (
             <div className="seasons">
-                {seasons.map((season) => {
+                {seasons.reverse().map((season) => {
                     return (
                         <Card key={season.id} initiallyExpanded={false}>
                             <CardTitle
@@ -98,7 +108,7 @@ class ExpandedSeries extends Component {
 
     renderEpisodes(episodes) {
         return (
-            <List subheader="Episodes" expandable={true}>
+            <List subheader="Episodes">
                 {episodes.map((episode) => {
                     let avatar;
                     if(episode.filename) {
@@ -106,19 +116,90 @@ class ExpandedSeries extends Component {
                     }
 
                     return (
-                        <ListItem
-                            key={episode.id}
-                            leftAvatar={avatar}
-                            primaryText={episode.EpisodeNumber + '. ' + episode.EpisodeName}
-                            secondaryText={
-                                <p>{episode.Overview}</p>
-                            }
-                            secondaryTextLines={2}
-                            />
+                        <div key={episode.id}>
+                            <ListItem
+                                leftAvatar={avatar}
+                                primaryText={episode.EpisodeNumber + '. ' + episode.EpisodeName}
+                                secondaryText={
+                                    <p>{episode.Overview}</p>
+                                }
+                                secondaryTextLines={2}
+                                rightIconButton={this.renderEpisodeMenu(episode)}
+                                initiallyOpen={true}
+                                nestedItems={this.renderEpisodeDownloads(episode)}
+                                >
+                            </ListItem>
+                        </div>
                     );
                 })}
             </List>
         );
+    }
+
+    renderEpisodeMenu(episode) {
+        let actions = [];
+
+        actions.push(
+            <MenuItem
+                onTouchTap={this.handleEpisodeSearch(episode)}
+                >
+                Search torrents
+            </MenuItem>
+        );
+
+        let iconButtonElement = (
+            <IconButton
+                touch={true}
+                tooltip="Actions"
+                tooltipPosition="bottom-left"
+                >
+                <i className="material-icons">&#xE5D4;</i>
+            </IconButton>
+        );
+
+        return (
+            <IconMenu
+                iconButtonElement={iconButtonElement}
+                anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right'
+                }}
+                >
+                {actions}
+            </IconMenu>
+        );
+    }
+
+    renderEpisodeDownloads(episode) {
+        let downloads = _.filter(this.props.torrents, {seriesId: this.props.series.id, episodeId: episode.id});
+
+        if(!downloads) {
+            return null;
+        }
+
+        return downloads.map((download) => {
+            return (
+                <ListItem key={download._id}
+                    secondaryText={
+                        <p>{download.title} - {download.progress}%</p>
+                    }
+                    secondaryTextLines={1}
+                    rightIconButton={
+                        <IconButton
+                            touch={true}
+                            tooltip="Remove"
+                            tooltipPosition="bottom-left"
+                            className="removeTorrentDownload"
+                            onTouchTap={this.handleRemoveDownload(download)}
+                            >
+                            <i className="material-icons">&#xE5C9;</i>
+                        </IconButton>
+                    }
+                    >
+                    <LinearProgress mode="determinate" color={"#4CAF50"} value={download.progress} />
+                </ListItem>
+            );
+        });
     }
 
     getBannerUrl(part) {
@@ -149,8 +230,21 @@ class ExpandedSeries extends Component {
 
     handleRemove(e) {
         e.preventDefault();
-
         this.props.onRemove(this.props.series.id);
+    }
+
+    handleRemoveDownload(download) {
+        return (e) => {
+            e.preventDefault();
+            this.props.onRemoveDownload(download);
+        };
+    }
+
+    handleEpisodeSearch(episode) {
+        return (e) => {
+            e.preventDefault();
+            this.props.findTorrent(this.props.series, episode);
+        };
     }
 }
 

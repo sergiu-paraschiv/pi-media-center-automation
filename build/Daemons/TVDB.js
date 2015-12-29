@@ -4,11 +4,11 @@ var _DB = require('../Database/DB');
 
 var _DB2 = _interopRequireDefault(_DB);
 
-var _TVDBService = require('../TVDB/TVDBService');
+var _TVDBService = require('../Services/TVDBService');
 
 var _TVDBService2 = _interopRequireDefault(_TVDBService);
 
-var _IPCService = require('../IPC/IPCService');
+var _IPCService = require('../Services/IPCService');
 
 var _IPCService2 = _interopRequireDefault(_IPCService);
 

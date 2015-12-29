@@ -1,7 +1,7 @@
 import Express from 'express';
 import BodyParser from 'body-parser';
 import Config from '../Config';
-import IPCService from '../IPC/IPCService';
+import IPCService from '../Services/IPCService';
 
 class WebServerService {
     constructor() {

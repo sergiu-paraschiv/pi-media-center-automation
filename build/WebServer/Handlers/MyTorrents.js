@@ -10,38 +10,29 @@ var _DB = require('../../Database/DB');
 
 var _DB2 = _interopRequireDefault(_DB);
 
-var _IPCService = require('../../Services/IPCService');
-
-var _IPCService2 = _interopRequireDefault(_IPCService);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var AddSeries = (function () {
-    function AddSeries() {
-        _classCallCheck(this, AddSeries);
+var MyTorrents = (function () {
+    function MyTorrents() {
+        _classCallCheck(this, MyTorrents);
     }
 
-    _createClass(AddSeries, [{
+    _createClass(MyTorrents, [{
         key: 'handle',
         value: function handle(req, res) {
-            var series = new _DB2.default.Series(req.body.series);
-            series.save(function (err, series) {
+            _DB2.default.Torrent.find(function (err, torrents) {
                 if (err) {
                     res.json({ status: false });
                 } else {
-                    _IPCService2.default.message({
-                        action: 'loadEpisodesForSeries',
-                        params: [series.id]
-                    });
-                    res.json({ status: true, data: series });
+                    res.json({ status: true, torrents: torrents });
                 }
             });
         }
     }]);
 
-    return AddSeries;
+    return MyTorrents;
 })();
 
-exports.default = new AddSeries();
+exports.default = new MyTorrents();

@@ -18,7 +18,7 @@ var _Config = require('../Config');
 
 var _Config2 = _interopRequireDefault(_Config);
 
-var _IPCService = require('../IPC/IPCService');
+var _IPCService = require('../Services/IPCService');
 
 var _IPCService2 = _interopRequireDefault(_IPCService);
 

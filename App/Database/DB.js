@@ -3,6 +3,7 @@ import Promise from 'promise';
 import Config from '../Config';
 import Log from '../Log';
 import Series from './Schemas/Series';
+import Torrent from './Schemas/Torrent';
 
 class DB {
     connect() {
@@ -14,7 +15,8 @@ class DB {
             });
             this.connection.once('open', () => {
                 const schemas = [
-                    Series
+                    Series,
+                    Torrent
                 ];
 
                 schemas.forEach((schema) => {

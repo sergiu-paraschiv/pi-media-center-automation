@@ -1,12 +1,20 @@
 import _ from 'lodash';
+import filesize from 'filesize';
 import React, {Component} from 'react';
-import {AutoComplete} from 'material-ui';
-import Tabs from 'material-ui/lib/tabs/tabs';
-import Tab from 'material-ui/lib/tabs/tab';
-import CardActions from 'material-ui/lib/card/card-actions';
-import FlatButton from 'material-ui/lib/flat-button';
-import Snackbar from 'material-ui/lib/snackbar';
+import {
+    AutoComplete,
+    Tabs,
+    Tab,
+    CardActions,
+    FlatButton,
+    Snackbar,
+    Dialog,
+    List,
+    ListItem,
+    IconButton
+} from 'material-ui';
 import TVDBService from '../../Services/TVDBService';
+import TorrentService from '../../Services/TorrentService';
 import SeriesService from '../../Services/SeriesService';
 import SeriesDetails from './SeriesDetails';
 import SeriesList from './SeriesList';
@@ -14,6 +22,8 @@ import ExpandedSeries from './ExpandedSeries';
 
 const TABS = ['addSeries', 'series', 'activity'];
 const SNACKBAR_AUTOHIDE_DURATION = 0;
+const MAX_TORRENTS = 5;
+const RELOAD_TORRENTS_INTERVAL = 1000;
 
 class Home extends Component {
     constructor(props) {
@@ -30,12 +40,21 @@ class Home extends Component {
             snackbarOpen: false,
             snackbarMessage: null,
             snackbarAction: null,
-            snackbarActionLabel: null
+            snackbarActionLabel: null,
+            torrentsDialogOpen: false,
+            torrentsDialogTitle: null,
+            myTorrents: []
         };
     }
 
     componentDidMount() {
         this.reloadMySeries();
+        this.reloadMyTorrents();
+        this.reloadTorrentsInterval = setInterval(this.reloadMyTorrents.bind(this), RELOAD_TORRENTS_INTERVAL);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.reloadTorrentsInterval);
     }
 
     render() {
@@ -67,15 +86,72 @@ class Home extends Component {
                         (Tab b content...)
                     </Tab>
                 </Tabs>
-                <Snackbar
-                    open={this.state.snackbarOpen}
-                    message={this.state.snackbarMessage}
-                    action={this.state.snackbarActionLabel}
-                    autoHideDuration={SNACKBAR_AUTOHIDE_DURATION}
-                    onActionTouchTap={this.state.snackbarAction}
-                    onDismiss={this.handleSnackbarDismiss.bind(this)}
-                    />
+                {this.renderSnackbar()}
+                {this.renderTorrentsDialog()}
             </div>
+        );
+    }
+
+    renderSnackbar() {
+        return (
+            <Snackbar
+                open={this.state.snackbarOpen}
+                message={this.state.snackbarMessage}
+                action={this.state.snackbarActionLabel}
+                autoHideDuration={SNACKBAR_AUTOHIDE_DURATION}
+                onActionTouchTap={this.state.snackbarAction}
+                onDismiss={this.handleSnackbarDismiss.bind(this)}
+                />
+        );
+    }
+
+    renderTorrentsDialog() {
+        if(!this.state.torrents) {
+            return null;
+        }
+
+        return (
+            <Dialog
+                title={this.state.torrentsDialogTitle}
+                modal={false}
+                open={this.state.torrentsDialogOpen}
+                onRequestClose={this.handleTorrentsDialogClose.bind(this)}
+                bodyClassName="torrentsList"
+                >
+                {this.state.torrents.map((provider, index) => {
+                    return (
+                        <List subheader={provider.name} key={index}>
+                            {provider.torrents.slice(0, MAX_TORRENTS).map((torrent, index) => {
+                                let verified = null;
+                                if(torrent.verified === 1) {
+                                    verified = <span> - <span className="verifiedTorrent">Verified</span></span>;
+                                }
+                                return (
+                                    <ListItem
+                                        key={index}
+                                        primaryText={torrent.title}
+                                        secondaryText={
+                                            <p>{torrent.seeds} seeders - {torrent.peers} peers {verified} - {filesize(torrent.size)} (in {torrent.files} files)</p>
+                                        }
+                                        secondaryTextLines={1}
+                                        rightIconButton={
+                                            <IconButton
+                                                touch={true}
+                                                tooltip="Download"
+                                                tooltipPosition="bottom-left"
+                                                onTouchTap={this.handleDownloadTorrent(torrent)}
+                                                >
+                                                <i className="material-icons">&#xE2C4;</i>
+                                            </IconButton>
+                                        }
+                                        >
+                                    </ListItem>
+                                );
+                            })}
+                        </List>
+                    );
+                })}
+            </Dialog>
         );
     }
 
@@ -84,8 +160,11 @@ class Home extends Component {
             return (
                 <ExpandedSeries
                     series={this.state.expandedSeries}
+                    torrents={this.state.myTorrents}
                     goBack={this.handleGoBackToSeriesList.bind(this)}
                     onRemove={this.handleRemoveSeries.bind(this)}
+                    onRemoveDownload={this.handleRemoveDownload.bind(this)}
+                    findTorrent={this.handleFindTorrent.bind(this)}
                     />
             );
         }
@@ -205,6 +284,7 @@ class Home extends Component {
     }
 
     // TODO: add UNDO snackbar action
+    // TODO: also remove active downloads
     handleRemoveSeries(id) {
         SeriesService.remove(id)
             .then(() => {
@@ -224,6 +304,54 @@ class Home extends Component {
             });
     }
 
+    handleRemoveDownload(download) {
+        TorrentService.remove(download._id);
+    }
+
+    handleFindTorrent(series, episode) {
+        const query = this.getEpisodeQuery(series, episode);
+        TorrentService.find(query)
+            .then((data) => {
+                this.setState({
+                    torrents: data,
+                    torrentsDialogOpen: true,
+                    torrentsDialogTitle: query,
+                    torrentsEpisodeId: episode.id,
+                    torrentsSeriesId: series.id
+                });
+            });
+    }
+
+    handleTorrentsDialogClose() {
+        this.setState({
+            torrents: null,
+            torrentsDialogOpen: false,
+            torrentsDialogTitle: null,
+            torrentsEpisodeId: null,
+            torrentsSeriesId: null
+        });
+    }
+
+    handleDownloadTorrent(torrent) {
+        return (e) => {
+            e.preventDefault();
+
+            this.setState({
+                torrents: null,
+                torrentsDialogOpen: false,
+                torrentsDialogTitle: null,
+                torrentsEpisodeId: null,
+                torrentsSeriesId: null
+            });
+
+            TorrentService.download(this.state.torrentsSeriesId, this.state.torrentsEpisodeId, torrent)
+                .then(() => {
+                    // TODO: optimise this and reload just the episode maybe?
+                    this.reloadMySeries();
+                });
+        };
+    }
+
     reloadMySeries() {
         SeriesService.get()
             .then((data) => {
@@ -233,6 +361,30 @@ class Home extends Component {
                     });
                 }
             });
+    }
+
+    reloadMyTorrents() {
+        TorrentService.get()
+            .then((data) => {
+                if(data.status) {
+                    this.setState({
+                        myTorrents: data.torrents
+                    });
+                }
+            });
+    }
+
+    getEpisodeQuery(series, episode) {
+        return series.name + ' S' + this.addZero(episode.SeasonNumber) + 'E' + this.addZero(episode.EpisodeNumber);
+    }
+
+    addZero(s) {
+        s = parseInt(s, 10);
+        if(s < 10) {
+            return '0' + s;
+        }
+
+        return s;
     }
 }
 

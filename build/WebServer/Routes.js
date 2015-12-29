@@ -10,6 +10,14 @@ var _FindSeriesByName = require('./Handlers/FindSeriesByName');
 
 var _FindSeriesByName2 = _interopRequireDefault(_FindSeriesByName);
 
+var _FindTorrent = require('./Handlers/FindTorrent');
+
+var _FindTorrent2 = _interopRequireDefault(_FindTorrent);
+
+var _DownloadTorrent = require('./Handlers/DownloadTorrent');
+
+var _DownloadTorrent2 = _interopRequireDefault(_DownloadTorrent);
+
 var _AddSeries = require('./Handlers/AddSeries');
 
 var _AddSeries2 = _interopRequireDefault(_AddSeries);
@@ -21,6 +29,14 @@ var _RemoveSeries2 = _interopRequireDefault(_RemoveSeries);
 var _MySeries = require('./Handlers/MySeries');
 
 var _MySeries2 = _interopRequireDefault(_MySeries);
+
+var _MyTorrents = require('./Handlers/MyTorrents');
+
+var _MyTorrents2 = _interopRequireDefault(_MyTorrents);
+
+var _RemoveTorrent = require('./Handlers/RemoveTorrent');
+
+var _RemoveTorrent2 = _interopRequireDefault(_RemoveTorrent);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -35,9 +51,13 @@ var Routes = (function () {
         key: 'addTo',
         value: function addTo(router) {
             router.get('/find-series-by-name', _FindSeriesByName2.default.handle);
+            router.get('/find-torrent', _FindTorrent2.default.handle);
+            router.post('/download-torrent', _DownloadTorrent2.default.handle);
+            router.post('/remove-torrent', _RemoveTorrent2.default.handle);
             router.post('/add-series', _AddSeries2.default.handle);
             router.post('/remove-series', _RemoveSeries2.default.handle);
             router.get('/my-series', _MySeries2.default.handle);
+            router.get('/my-torrents', _MyTorrents2.default.handle);
         }
     }]);
 
